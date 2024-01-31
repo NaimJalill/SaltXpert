@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
+import { API } from "./config";
 
-const socket = io("https://server-saltxpert.koyeb.app", {
+const socket = io(API, {
   transports: ["websocket"],
 });
 

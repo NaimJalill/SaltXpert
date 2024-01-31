@@ -32,6 +32,7 @@ export default function Login() {
             variant="outlined"
             value={name}
             onChange={handleNameChange}
+            sx={{ backgroundColor: "white" }}
           />
           <Button variant="contained" onClick={handleJoin}>
             Join
