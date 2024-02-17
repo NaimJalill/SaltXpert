@@ -1,26 +1,27 @@
 import { Button, Container, Stack, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
-import socket from "../socket";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useJoinMutation } from "../features/game/gameApi";
 
 export default function Login() {
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
+  const [join, { isLoading }] = useJoinMutation();
+
   const handleNameChange = (event) => {
     setName(event.target.value);
   };
 
-  useEffect(() => {
-    socket.on("joined", (data) => {
-      localStorage.setItem("data", JSON.stringify(data));
+  async function handleJoin() {
+    try {
+      const { id } = await join({ name }).unwrap();
+      localStorage.setItem("saltxpert-id", id);
       navigate("/game");
-    });
-  }, [navigate]);
-
-  const handleJoin = () => {
-    socket.emit("join", name);
-  };
+    } catch (error) {
+      console.error("Failed to join game", error);
+    }
+  }
 
   return (
     <>
@@ -34,7 +35,7 @@ export default function Login() {
             onChange={handleNameChange}
             sx={{ backgroundColor: "white" }}
           />
-          <Button variant="contained" onClick={handleJoin}>
+          <Button variant="contained" onClick={handleJoin} disabled={isLoading}>
             Join
           </Button>
         </Stack>

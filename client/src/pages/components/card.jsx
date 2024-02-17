@@ -1,7 +1,10 @@
+import parse from "html-react-parser";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { API } from "../../config";
 import {
   Box,
   Button,
-  Container,
   Dialog,
   DialogActions,
   DialogContent,
@@ -11,25 +14,19 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-  Stack,
   TextField,
   Typography,
+  Stack,
 } from "@mui/material";
-import { useSelector } from "react-redux";
-import { API } from "../config";
-import Board from "./components/Board";
 import {
-  useStartMutation,
+  useAcceptMutation,
   useAnswerMutation,
-  useEndMutation,
-} from "../features/game/gameApi";
-import parse from "html-react-parser";
-import { useEffect, useState } from "react";
+  useProfessorMutation,
+  useSkipMutation,
+} from "../../features/game/gameApi";
 import dayjs from "dayjs";
-import Side from "./components/side";
-import Winner from "./components/Winner";
 
-function getTitle(type, name) {
+function getTitlePeople(type, name) {
   switch (type) {
     case "purple green":
       return name + " got Purple/Green";
@@ -54,11 +51,66 @@ function getTitle(type, name) {
   }
 }
 
-function CardQuestion() {
-  const card = useSelector((state) => state.game.game?.currentCard);
-  const professor = useSelector((state) => state.game.game?.professor);
+function getTitle(type) {
+  switch (type) {
+    case "purple green":
+      return "Purple/Green";
+    case "purple red":
+      return "Purple/Red";
+    case "purple orange":
+      return "Purple/Orange";
+    case "green green":
+      return "Green/Green";
+    case "green red":
+      return "Green/Red";
+    case "green orange":
+      return "Green/Orange";
+    case "chance":
+      return "You got chance!";
+    case "penalty":
+      return "Oh no! You got penalty!";
+    case "note":
+      return "You got note!";
+    case "exam":
+      return "You got exam!";
+  }
+}
+
+function Card() {
   const game = useSelector((state) => state.game.game);
-  const player = game?.players.find((player) => player.id === game?.turn);
+
+  const [answerMutation] = useAnswerMutation();
+  const [acceptMutation] = useAcceptMutation();
+  const [professorMutation] = useProfessorMutation();
+  const [skipMutation] = useSkipMutation();
+
+  const card = game?.currentCard;
+
+  const player = game?.players.find(
+    (player) => player.id === localStorage.getItem("saltxpert-id")
+  );
+
+  const current = game?.players.find((player) => player.id === game?.turn);
+
+  const professor = game?.professor;
+
+  const [answer, setAnswer] = useState("");
+
+  async function handleAnswer() {
+    if (card.card?.needProfessor) {
+      await professorMutation({ answer });
+    } else {
+      await answerMutation({ answer });
+    }
+  }
+
+  async function handleAccept() {
+    await acceptMutation();
+  }
+
+  async function handleSkip() {
+    await skipMutation();
+  }
 
   const [progress, setProgress] = useState(0);
 
@@ -87,9 +139,13 @@ function CardQuestion() {
     };
   }, [game]);
 
+  useEffect(() => {
+    setAnswer("");
+  }, [card]);
+
   return (
     <Dialog
-      open={(professor === "" || professor === null) && card !== null}
+      open={card !== null}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
       fullWidth
@@ -101,7 +157,9 @@ function CardQuestion() {
           justifyContent="space-between"
         >
           <Typography variant="h4">
-            {getTitle(card?.type, player?.name)}
+            {player.id === game.turn
+              ? getTitle(card?.type)
+              : getTitlePeople(card?.type, current?.name)}
           </Typography>
           <Typography variant="h6">
             {progress > 0 && `(${progress} s)`}
@@ -113,10 +171,10 @@ function CardQuestion() {
           {card?.type === "chance" && (
             <Box>
               <Typography variant="h6" color="#000000">
-                {card?.card?.text}
+                {card.card?.text}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {card?.card?.note !== "" && `Note: ${card?.card?.note}`}
+                {card.card?.note !== "" && `Note: ${card?.card?.note}`}
               </Typography>
             </Box>
           )}
@@ -130,7 +188,7 @@ function CardQuestion() {
               </Typography>
             </Box>
           )}
-          {card?.type === "note" && (
+          {card?.type === "note" && player.id === game.turn && (
             <Box>
               <Typography variant="h6" color="#000000">
                 {parse(card.card?.text || "")}
@@ -150,21 +208,36 @@ function CardQuestion() {
                   >
                     <Box
                       component="img"
-                      src={`${API}${card?.card?.image}`}
+                      src={`${API}${card.card?.image}`}
                       sx={{ width: "100%", height: "auto" }}
                     />
                   </Stack>
                 )}
                 <Typography>{parse(card?.card?.question || "")}</Typography>
 
-                {card?.card?.needProfessor ? (
-                  ""
+                {card?.card?.needProfessor && player.id === game.turn ? (
+                  <TextField
+                    sx={{ mt: 2 }}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    value={answer || professor}
+                    fullWidth
+                    multiline
+                    rows={3}
+                    disabled={
+                      (professor !== "" && professor !== null) ||
+                      player.id !== game.turn
+                    }
+                    variant="outlined"
+                    required
+                  />
                 ) : (
-                  <FormControl disabled={true}>
+                  <FormControl disabled={player.id !== game.turn}>
                     <RadioGroup
                       aria-labelledby="demo-controlled-radio-buttons-group"
                       name="controlled-radio-buttons-group"
-                      disabled={true}
+                      value={answer}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      disabled={player.id !== game.turn}
                     >
                       {card?.card?.multipleChoice?.map((choice, index) => (
                         <FormControlLabel
@@ -181,126 +254,56 @@ function CardQuestion() {
             )}
         </DialogContentText>
       </DialogContent>
-    </Dialog>
-  );
-}
-
-function Card() {
-  const card = useSelector((state) => state.game.game?.currentCard);
-  const game = useSelector((state) => state.game.game);
-  const professor = useSelector((state) => state.game.game?.professor);
-  const player = game?.players.find((player) => player.id === game?.turn);
-
-  const [answer] = useAnswerMutation();
-
-  async function handleAnswer(value) {
-    await answer({ answer: value });
-  }
-
-  return (
-    <Dialog
-      open={professor !== "" && professor !== null && card !== undefined}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-      fullWidth
-    >
-      <DialogTitle id="alert-dialog-title">Card</DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          {card?.card?.image && (
-            <Stack
-              direction="row"
-              p={1}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Box
-                component="img"
-                src={`${API}${card?.card?.image}`}
-                sx={{ width: "100%", height: "auto" }}
-              />
-            </Stack>
-          )}
-          <Typography>{parse(card?.card?.question || "")}</Typography>
-          <br />
-
-          <Typography variant="h6">Schema:</Typography>
-          <Typography>
-            {" "}
-            {parse(card?.card?.answer?.join(", ") || "")}
-          </Typography>
-
-          <Typography mt={2}>{player?.name}:</Typography>
-          <TextField
-            sx={{ mt: 2 }}
-            value={professor}
-            fullWidth
-            multiline
-            rows={3}
-            disabled
-            variant="outlined"
-          />
-        </DialogContentText>
-      </DialogContent>
       <DialogActions>
-        <Button
-          onClick={() => handleAnswer("Yes")}
-          color="primary"
-          variant="contained"
-        >
-          Correct
-        </Button>
-        <Button
-          onClick={() => handleAnswer("No")}
-          color="error"
-          variant="contained"
-        >
-          Wrong
-        </Button>
+        {card?.type === "exam" &&
+          player?.id === game?.turn &&
+          player?.cards
+            .filter((c) => c.type === "chance")
+            ?.find((c) => c.card.id === 2) && (
+            <Button
+              onClick={async () => {
+                await handleSkip();
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Use Change Card
+            </Button>
+          )}
+
+        {card?.type !== "chance" &&
+          card?.type !== "penalty" &&
+          card?.type !== "note" &&
+          player.id === game.turn && (
+            <Button
+              onClick={handleAnswer}
+              variant="contained"
+              color="primary"
+              disabled={
+                (professor !== "" && professor !== null) ||
+                player.id !== game.turn
+              }
+            >
+              Submit
+            </Button>
+          )}
+
+        {(card?.type === "chance" ||
+          card?.type === "penalty" ||
+          card?.type === "note") &&
+          player.id === game.turn && (
+            <Button
+              onClick={handleAccept}
+              color="primary"
+              disabled={player.id !== game.turn}
+              variant="contained"
+            >
+              Accept
+            </Button>
+          )}
       </DialogActions>
     </Dialog>
   );
 }
 
-export default function Control() {
-  const [start] = useStartMutation();
-  const [end] = useEndMutation();
-
-  async function startGame() {
-    await start();
-  }
-
-  const game = useSelector((state) => state.game.game);
-
-  return (
-    <Container maxWidth="md">
-      <Board />
-      <Card />
-      <CardQuestion />
-      <Stack
-        direction="row"
-        spacing={2}
-        mt={2}
-        alignItems="center"
-        justifyContent="center"
-      >
-        {!game?.start && (
-          <Button variant="contained" color="primary" onClick={startGame}>
-            Start
-          </Button>
-        )}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={async () => {
-            await end();
-          }}
-        >
-          Reset
-        </Button>
-      </Stack>
-      <Side />
-      <Winner />
-    </Container>
-  );
-}
+export default Card;

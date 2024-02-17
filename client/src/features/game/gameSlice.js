@@ -2,17 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   load: false,
-  game: {
-    players: [],
-    turn: 0,
-    start: false,
-    roll: 0,
-  },
-  card: {
-    item: null,
-  },
-
-  professor: "",
+  game: null,
 };
 
 const gameSlice = createSlice({
@@ -23,14 +13,8 @@ const gameSlice = createSlice({
       state.game = action.payload;
       state.load = true;
     },
-    setCard(state, action) {
-      state.card.item = action.payload;
-    },
-    setProfessor(state, action) {
-      state.professor = action.payload;
-    },
   },
 });
 
-export const { setGame, setCard, setProfessor } = gameSlice.actions;
+export const { setGame } = gameSlice.actions;
 export default gameSlice.reducer;

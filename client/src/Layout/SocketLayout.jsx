@@ -1,13 +1,16 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import socket from "../socket";
-import { useDispatch } from "react-redux";
-import { setGame, setCard, setProfessor } from "../features/game/gameSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setGame } from "../features/game/gameSlice";
 
 export default function SocketLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
+
+  const load = useSelector((state) => state.game.load);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -20,21 +23,35 @@ export default function SocketLayout() {
 
     socket.on("game", (game) => {
       dispatch(setGame(game));
-    });
 
-    socket.on("card", (card) => {
-      dispatch(setCard(card));
-    });
+      if (location.pathname === "/control") {
+        return;
+      }
 
-    socket.on("professor", (data) => {
-      dispatch(setProfessor(data));
+      const id = localStorage.getItem("saltxpert-id");
+
+      if (game?.end || game === null) {
+        localStorage.removeItem("saltxpert-id");
+        navigate("/");
+        return;
+      }
+
+      if (game.players.some((player) => player.id === id)) {
+        if (location.pathname === "/") navigate("/game");
+      } else {
+        localStorage.removeItem("saltxpert-id");
+        if (location.pathname === "/game") navigate("/");
+      }
     });
 
     return () => {
       socket.off("connect");
       socket.off("disconnect");
+      socket.off("game");
     };
-  }, [dispatch, navigate]);
+  }, [dispatch, location.pathname, navigate]);
+
+  if (!load) return <div>Loading...</div>;
 
   return <Outlet />;
 }

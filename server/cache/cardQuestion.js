@@ -165,7 +165,7 @@ const purpleOrange = [
     id: 6,
     image: "/public/images/question/purple/orange/S6.png",
     question:
-      "The following equation represents the reaction between zinc metal and sulfuric acid.\\nWhat is the name of the salt and its solubility in water?",
+      "The following equation represents the reaction between zinc metal and sulfuric acid.<br/>What is the name of the salt and its solubility in water?",
     multipleChoice: ["A", "B", "C", "D"],
     answer: [0],
     needProfessor: false,
@@ -192,7 +192,7 @@ const purpleOrange = [
     id: 9,
     image: "/public/images/question/purple/orange/S9.png",
     question:
-      "The following chemical equation represents the reaction between zinc oxide and nitric acid.\\nState the salt X and name the reaction that occurs to produce the salt.",
+      "The following chemical equation represents the reaction between zinc oxide and nitric acid.<br/>State the salt X and name the reaction that occurs to produce the salt.",
     multipleChoice: [],
     answer: ["Zinc nitrate, Zn(NO₃)₂", "Reaction between acid + metal oxide"],
     needProfessor: true,
@@ -259,7 +259,7 @@ const purpleOrange = [
     id: 16,
     image: null,
     question:
-      "What is the product of the reaction below\\nMgCO mixed with HNO produces Mg(NO) and ________.",
+      "What is the product of the reaction below<br/>MgCO mixed with HNO produces Mg(NO) and ________.",
     multipleChoice: [
       "Hydrogen gas and water",
       "Carbon dioxide gas only",
@@ -308,7 +308,7 @@ const purpleRed = [
     id: 2,
     image: null,
     question:
-      "Factory X produces ammonium sulphate fertiliser through the neutralisation process.\\nState the ingredients used to produce ammonium sulphate salt.",
+      "Factory X produces ammonium sulphate fertiliser through the neutralisation process.<br/>State the ingredients used to produce ammonium sulphate salt.",
     multipleChoice: [],
     answer: ["Ammonia solution", "Sulphuric acid"],
     needProfessor: true,
@@ -453,7 +453,7 @@ const greenOrange = [
     id: 3,
     image: null,
     question:
-      "The following statements show the steps taken in an experiment.\\n\\n- A solution of lead(II) nitrate is mixed with a solution of potassium iodide\\n- The mixture is filtered\\n- The remaining filtrate on the filter paper is lead(II) iodide\\n\\nThe steps are related to the preparation of _______________.",
+      "The following statements show the steps taken in an experiment.<br/><br/>- A solution of lead(II) nitrate is mixed with a solution of potassium iodide<br/>- The mixture is filtered<br/>- The remaining filtrate on the filter paper is lead(II) iodide<br/><br/>The steps are related to the preparation of _______________.",
     multipleChoice: [],
     answer: ["Insoluble salt"],
     needProfessor: true,
@@ -542,11 +542,11 @@ const greenRed = [
     id: 1,
     image: null,
     question:
-      "You are required to prepare silver chloride salt. The chemicals supplied are:\\n\\n-Silver nitrate solution\\n-X chloride solution\\n\\nSuggest the X chloride solution used to produce the silver chloride salt. State the procedure to prepare the salt.",
+      "You are required to prepare silver chloride salt. The chemicals supplied are:<br/><br/>-Silver nitrate solution<br/>-X chloride solution<br/><br/>Suggest the X chloride solution used to produce the silver chloride salt. State the procedure to prepare the salt.",
     multipleChoice: [],
     answer: [
-      "1. X chloride: All chloride salts EXCEPT:\\nMercury (I) chloride\\nLead (II) Chloride\\nSilver chloride",
-      "2. Procedure:\\n1. Add the silver nitrate solution to the sodium chloride solution\\n2. Filter the mixture\\n3. Wash the residue with distilled water and dry with filter paper",
+      "1. X chloride: All chloride salts EXCEPT:<br/>Mercury (I) chloride<br/>Lead (II) Chloride<br/>Silver chloride",
+      "2. Procedure:<br/>1. Add the silver nitrate solution to the sodium chloride solution<br/>2. Filter the mixture<br/>3. Wash the residue with distilled water and dry with filter paper",
     ],
     needProfessor: true,
   },
@@ -554,7 +554,7 @@ const greenRed = [
     id: 2,
     image: null,
     question:
-      "Double decomposition reactions occur between:\\n\\n-Lead (II) nitrate solution, Pb(NO3)2\\n-Ammonium carbonate solution, (NH4)2CO3\\n\\nWrite the chemical equation for the reaction that occurs in the preparation of lead (II) carbonate.",
+      "Double decomposition reactions occur between:<br/><br/>-Lead (II) nitrate solution, Pb(NO3)2<br/>-Ammonium carbonate solution, (NH4)2CO3<br/><br/>Write the chemical equation for the reaction that occurs in the preparation of lead (II) carbonate.",
     multipleChoice: [],
     answer: ["Pb(NO₃)₂ (aq) + (NH₄)₂CO₃ (aq) → PbCO₃ (s) + 2NH₄NO₃ (aq)"],
     needProfessor: true,
@@ -575,7 +575,7 @@ const greenRed = [
     id: 4,
     image: null,
     question:
-      "You are supplied with aluminium nitrate, aluminium chloride and aluminium sulphate salts.By choosing one of the salts provided, suggest the substance used to prepare aluminium carbonate and include the chemical equation involved.\\nDescribe a simple procedure for the preparation of aluminium carbonate salt.",
+      "You are supplied with aluminium nitrate, aluminium chloride and aluminium sulphate salts.By choosing one of the salts provided, suggest the substance used to prepare aluminium carbonate and include the chemical equation involved.<br/>Describe a simple procedure for the preparation of aluminium carbonate salt.",
     multipleChoice: [],
     answer: [
       "Solution: Sodium carbonate // potassium carbonate // ammonium carbonate",
