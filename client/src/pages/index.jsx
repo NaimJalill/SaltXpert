@@ -6,7 +6,7 @@ import {
 import Login from "./Login";
 import Game from "./game";
 import Control from "./Control";
-import SocketLayout from "../layout/SocketLayout";
+import SocketLayout from "../layout/SocketLayout.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
