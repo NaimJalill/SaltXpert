@@ -2,6 +2,7 @@ import parse from "html-react-parser";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { API } from "../../config";
+import YouTube from "@u-wave/react-youtube";
 import {
   Box,
   Button,
@@ -25,6 +26,8 @@ import {
   useSkipMutation,
 } from "../../features/game/gameApi";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 function getTitlePeople(type, name) {
   switch (type) {
@@ -97,6 +100,8 @@ function Card() {
   const [answer, setAnswer] = useState("");
 
   async function handleAnswer() {
+    if (answer === "") return;
+
     if (card.card?.needProfessor) {
       await professorMutation({ answer });
     } else {
@@ -121,8 +126,8 @@ function Card() {
       const end = dayjs(game.timeout);
 
       intervalId = setInterval(() => {
-        if (dayjs().isBefore(end)) {
-          const p = end.diff(dayjs(), "second");
+        if (dayjs().utcOffset(0).isBefore(end)) {
+          const p = end.diff(dayjs().utcOffset(0), "second");
           setProgress(p);
         } else {
           clearInterval(intervalId);
@@ -157,7 +162,7 @@ function Card() {
           justifyContent="space-between"
         >
           <Typography variant="h4">
-            {player.id === game.turn
+            {player?.id === game?.turn
               ? getTitle(card?.type)
               : getTitlePeople(card?.type, current?.name)}
           </Typography>
@@ -213,6 +218,14 @@ function Card() {
                     />
                   </Stack>
                 )}
+
+                {card?.card?.youtube &&
+                  card?.card?.youtube?.map((video, index) => (
+                    <Box key={index} sx={{ mt: 2 }}>
+                      <YouTube video={video} width="100%" height="auto" />
+                    </Box>
+                  ))}
+
                 <Typography>{parse(card?.card?.question || "")}</Typography>
 
                 {card?.card?.needProfessor && player.id === game.turn ? (
@@ -231,7 +244,7 @@ function Card() {
                     required
                   />
                 ) : (
-                  <FormControl disabled={player.id !== game.turn}>
+                  <FormControl disabled={player?.id !== game?.turn}>
                     <RadioGroup
                       aria-labelledby="demo-controlled-radio-buttons-group"
                       name="controlled-radio-buttons-group"

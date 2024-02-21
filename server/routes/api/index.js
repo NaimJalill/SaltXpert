@@ -42,6 +42,10 @@ export default async function (fastify, opts) {
       position !== "Salt Lab" &&
       position !== "Start"
     ) {
+      if (!game.currentCard.card?.timeout) {
+        return;
+      }
+
       const count = game.count;
       await setTimeout(180000);
       const checkGame = await getGame();

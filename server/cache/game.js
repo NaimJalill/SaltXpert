@@ -2,6 +2,8 @@ import NodeCache from "node-cache";
 import getCardQuestion from "./cardQuestion.js";
 import getCardMore from "./cardMore.js";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+dayjs.extend(utc);
 
 const cache = new NodeCache();
 
@@ -140,6 +142,10 @@ export async function getCard(position) {
   let card = null;
 
   if (position === "Note") {
+    if (cardMore.note.length === 0) {
+      cardMore.note = getCardMore().note;
+    }
+
     const index = Math.floor(Math.random() * cardMore.note.length);
 
     const note = cardMore.note[index];
@@ -153,6 +159,10 @@ export async function getCard(position) {
       cash: 0,
     };
   } else if (position === "Chance") {
+    if (cardMore.chance.length === 0) {
+      cardMore.chance = getCardMore().chance;
+    }
+
     const index = Math.floor(Math.random() * cardMore.chance.length);
 
     const chance = cardMore.chance[index];
@@ -166,6 +176,10 @@ export async function getCard(position) {
       cash: 0,
     };
   } else if (position === "Penalty") {
+    if (cardMore.penalty.length === 0) {
+      cardMore.penalty = getCardMore().penalty;
+    }
+
     const index = Math.floor(Math.random() * cardMore.penalty.length);
 
     const penalty = cardMore.penalty[index];
@@ -179,6 +193,10 @@ export async function getCard(position) {
       cash: 0,
     };
   } else if (position === "Purple Yellow") {
+    if (cardQuestion.purple.yellow.length === 0) {
+      cardQuestion.purple.yellow = getCardQuestion().purple.yellow;
+    }
+
     const index = Math.floor(Math.random() * cardQuestion.purple.yellow.length);
 
     const question = cardQuestion.purple.yellow[index];
@@ -192,6 +210,10 @@ export async function getCard(position) {
       cash: 5,
     };
   } else if (position === "Purple Orange") {
+    if (cardQuestion.purple.orange.length === 0) {
+      cardQuestion.purple.orange = getCardQuestion().purple.orange;
+    }
+
     const index = Math.floor(Math.random() * cardQuestion.purple.orange.length);
 
     const question = cardQuestion.purple.orange[index];
@@ -205,6 +227,10 @@ export async function getCard(position) {
       cash: 10,
     };
   } else if (position === "Purple Red") {
+    if (cardQuestion.purple.red.length === 0) {
+      cardQuestion.purple.red = getCardQuestion().purple.red;
+    }
+
     const index = Math.floor(Math.random() * cardQuestion.purple.red.length);
 
     const question = cardQuestion.purple.red[index];
@@ -218,6 +244,10 @@ export async function getCard(position) {
       cash: 20,
     };
   } else if (position === "Green Yellow") {
+    if (cardQuestion.green.yellow.length === 0) {
+      cardQuestion.green.yellow = getCardQuestion().green.yellow;
+    }
+
     const index = Math.floor(Math.random() * cardQuestion.green.yellow.length);
 
     const question = cardQuestion.green.yellow[index];
@@ -231,6 +261,10 @@ export async function getCard(position) {
       cash: 5,
     };
   } else if (position === "Green Orange") {
+    if (cardQuestion.green.orange.length === 0) {
+      cardQuestion.green.orange = getCardQuestion().green.orange;
+    }
+
     const index = Math.floor(Math.random() * cardQuestion.green.orange.length);
 
     const question = cardQuestion.green.orange[index];
@@ -244,6 +278,9 @@ export async function getCard(position) {
       cash: 10,
     };
   } else if (position === "Green Red") {
+    if (cardQuestion.green.red.length === 0) {
+      cardQuestion.green.red = getCardQuestion().green.red;
+    }
     const index = Math.floor(Math.random() * cardQuestion.green.red.length);
 
     const question = cardQuestion.green.red[index];
@@ -262,6 +299,11 @@ export async function getCard(position) {
 
     const indexCard = Math.floor(Math.random() * listCard.length);
     const indexSalt = Math.floor(Math.random() * listSalt.length);
+
+    if (cardQuestion[listCard[indexCard]][listSalt[indexSalt]].length === 0) {
+      cardQuestion[listCard[indexCard]][listSalt[indexSalt]] =
+        getCardQuestion()[listCard[indexCard]][listSalt[indexSalt]];
+    }
 
     const questions = cardQuestion[listCard[indexCard]][listSalt[indexSalt]];
 
@@ -324,14 +366,18 @@ export async function rollDice(value) {
   let card = null;
   if (position === "Tutorial") {
     // 1 minute
-    game.timeout = dayjs().add(1, "minute").toDate();
+    game.timeout = dayjs().utcOffset(0).add(1, "minute").format();
 
     game.side = "Tutorial";
   } else if (position === "Exam Time") {
     // 3 minutes
     game.side = "Exam Time";
     card = await getCard(position);
-    game.timeout = dayjs().add(3, "minute").toDate();
+    if (card.card.timeout) {
+      game.timeout = dayjs().utcOffset(0).add(3, "minute").format();
+    } else {
+      game.timeout = null;
+    }
   } else if (position === "Salt Lab") {
     // 2 minutes'
     game.side = "Salt Lab";
@@ -344,7 +390,11 @@ export async function rollDice(value) {
       position !== "Note"
     ) {
       // 3 minutes
-      game.timeout = dayjs().add(3, "minute").toDate();
+      if (card.card.timeout) {
+        game.timeout = dayjs().utcOffset(0).add(3, "minute").format();
+      } else {
+        game.timeout = null;
+      }
     } else {
       game.timeout = null;
     }
@@ -444,12 +494,13 @@ export async function acceptCard() {
       card = await getCard(position);
 
       game.currentCard = card;
+      game.timeout = dayjs().utcOffset(0).add(3, "minute").format();
     } else {
       const nextPlayer = (indexPlayer + 1) % game.players.length;
       game.turn = game.players[nextPlayer].id;
       game.currentCard = null;
     }
-    player.cash += card.card.cash;
+    player.cash += card.card.cash || card.cash || 0;
   } else if (positionsCard[player.position] === "Chance") {
     if (card.card.save) {
       player.cards.push(card);
@@ -462,13 +513,14 @@ export async function acceptCard() {
       card = await getCard(position);
 
       game.currentCard = card;
+      game.timeout = dayjs().utcOffset(0).add(3, "minute").format();
     } else {
       const nextPlayer = (indexPlayer + 1) % game.players.length;
       game.turn = game.players[nextPlayer].id;
       game.currentCard = null;
     }
 
-    player.cash += card.card.cash;
+    player.cash += card.card.cash || card.cash || 0;
   }
 
   cache.set("game", game);

@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useSelector } from "react-redux";
+import YouTube from "@u-wave/react-youtube";
 import { API } from "../config";
 import Board from "./components/Board";
 import {
@@ -28,6 +29,8 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Side from "./components/side";
 import Winner from "./components/Winner";
+import utc from "dayjs/plugin/utc.js";
+dayjs.extend(utc);
 
 function getTitle(type, name) {
   switch (type) {
@@ -69,8 +72,8 @@ function CardQuestion() {
       const end = dayjs(game.timeout);
 
       intervalId = setInterval(() => {
-        if (dayjs().isBefore(end)) {
-          const p = end.diff(dayjs(), "second");
+        if (dayjs().utcOffset(0).isBefore(end)) {
+          const p = end.diff(dayjs().utcOffset(0), "second");
           setProgress(p);
         } else {
           clearInterval(intervalId);
@@ -155,6 +158,14 @@ function CardQuestion() {
                     />
                   </Stack>
                 )}
+
+                {card?.card?.youtube &&
+                  card?.card?.youtube?.map((video, index) => (
+                    <Box key={index} sx={{ mt: 2 }}>
+                      <YouTube video={video} width="100%" height="auto" />
+                    </Box>
+                  ))}
+
                 <Typography>{parse(card?.card?.question || "")}</Typography>
 
                 {card?.card?.needProfessor ? (
