@@ -123,7 +123,7 @@ function Card() {
     let intervalId;
 
     if (game?.timeout) {
-      const end = dayjs(game.timeout);
+      const end = dayjs(game.timeout).utcOffset(0);
 
       intervalId = setInterval(() => {
         if (dayjs().utcOffset(0).isBefore(end)) {
