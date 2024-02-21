@@ -280,7 +280,7 @@ function Card() {
               color="primary"
               variant="contained"
             >
-              Use Change Card
+              Use Chance Card
             </Button>
           )}
 
